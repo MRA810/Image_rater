@@ -1,10 +1,10 @@
-# 🌟 ImageRater — Role-Based Image Rating System
+# ImageRater — Role-Based Image Rating System
 
 A full-stack Flask + MySQL web application with role-based authentication, rating limits, cooldown logic, and admin analytics.
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Layer     | Technology |
 |-----------|-----------|
@@ -16,7 +16,7 @@ A full-stack Flask + MySQL web application with role-based authentication, ratin
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 image_rater/
@@ -42,7 +42,7 @@ image_rater/
 
 ---
 
-## 🚀 Setup Instructions
+## Setup Instructions
 
 ### Step 1 — Start XAMPP
 
@@ -90,17 +90,17 @@ Open: **http://localhost:5000**
 
 ---
 
-## 👤 Accounts & Roles
+## Accounts & Roles
 
 ### Creating an Admin Account
-Sign up at `/signup` and select **Admin** from the role dropdown.
+To create an admin account, go to `/signup`, select **Admin** from the role dropdown, and enter the **Admin Invite Code** when prompted. Only valid invite codes allow admin registration.
 
 ### Creating a User Account
-Sign up at `/signup` and select **User** from the role dropdown.
-
+To create a regular user account, go to `/signup` and select **User** from the role dropdown. No invite code is required for standard users.
 ---
+## Invite Code: UQID_SERIAL_ATLAS_4462381
 
-## 🗄 Database Schema
+## Database Schema
 
 ### `users`
 | Column | Type | Notes |
@@ -141,7 +141,7 @@ Sign up at `/signup` and select **User** from the role dropdown.
 
 ---
 
-## ⚙️ Business Rules
+## Business Rules
 
 | Rule | Implementation |
 |------|---------------|
@@ -154,7 +154,7 @@ Sign up at `/signup` and select **User** from the role dropdown.
 
 ---
 
-## 🎨 Brand Colors
+## Brand Colors
 
 | Role | Hex |
 |------|-----|
@@ -167,7 +167,7 @@ Sign up at `/signup` and select **User** from the role dropdown.
 
 ---
 
-## ✅ Feature Checklist
+## Feature Checklist
 
 - [x] User sign-up & login with bcrypt hashed passwords
 - [x] Role-based access (admin / user)
@@ -190,7 +190,7 @@ Sign up at `/signup` and select **User** from the role dropdown.
 
 ---
 
-## 🔒 Security Notes
+## Security Notes
 
 - Passwords hashed with **bcrypt** (salt rounds built-in)
 - File uploads validated by extension + `secure_filename()`
