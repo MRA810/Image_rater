@@ -28,16 +28,19 @@
           </button>
         </div>
       </div>
+
       <div class="mb-4">
         <label class="form-label">Account Role</label>
-        <select name="role" class="form-select">
+        <select name="role" id="roleSelect" class="form-select" required>
           <option value="user">User (Rater)</option>
           <option value="admin">Admin (Manager)</option>
         </select>
+        <input type="hidden" name="admin_code" id="adminCodeInput">
         <div class="form-text" style="color:var(--text-muted);font-size:.8rem">
           Admins can upload images and view analytics. Users can rate images.
         </div>
       </div>
+
       <button type="submit" class="btn btn-brand w-100">
         <i class="fa-solid fa-user-plus me-2"></i>Create Account
       </button>
@@ -77,5 +80,23 @@ function togglePwd() {
     ico.className = 'fa-solid fa-eye';
   }
 }
+
+const roleSelect = document.getElementById('roleSelect');
+const adminCodeInput = document.getElementById('adminCodeInput');
+
+roleSelect.addEventListener('change', function() {
+  if (this.value === 'admin') {
+    const code = prompt("Enter Admin Invite Code:");
+    if (!code) {
+      alert("Admin code is required. Switching back to User.");
+      this.value = 'user';
+      adminCodeInput.value = '';
+    } else {
+      adminCodeInput.value = code; // send to backend
+    }
+  } else {
+    adminCodeInput.value = '';
+  }
+});
 </script>
 {% endblock %}
