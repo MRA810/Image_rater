@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}My Ratings — ImageRater{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:860px">
+
+  <h2 class="section-title">
+    <i class="fa-solid fa-list-check me-2"></i>My Rating History
+  </h2>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem">
+    You have rated <strong>{{ history | length }}</strong> image{{ 's' if history|length != 1 }}.
+  </p>
+
+  {% if history %}
+  <div class="table-wrapper">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Image</th>
+          <th>Name</th>
+          <th>Rating</th>
+          <th>Rated At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in history %}
+        <tr>
+          <td style="color:var(--text-muted)">{{ loop.index }}</td>
+          <td>
+            <img src="{{ url_for('static', filename='uploads/' + r.image_path) }}"
+                 class="thumb" alt="{{ r.image_name }}">
+          </td>
+          <td style="font-weight:500">{{ r.image_name }}</td>
+          <td>
+            <span class="avg-badge {% if r.rating < 4 %}low{% elif r.rating < 7 %}mid{% endif %}">
+              {{ r.rating }}/10
+            </span>
+            <span class="ms-2">
+              {% for i in range(r.rating) %}
+              <i class="fa-solid fa-star rating-star" style="font-size:.75rem"></i>
+              {% endfor %}
+            </span>
+          </td>
+          <td style="color:var(--text-muted);font-size:.85rem">
+            {{ r.rated_at.strftime('%b %d, %Y %H:%M') }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="table-wrapper">
+    <div class="empty-state">
+      <div class="empty-icon"><i class="fa-regular fa-star"></i></div>
+      <h3>No ratings yet</h3>
+      <p class="text-muted">Head over to rate some images!</p>
+      <a href="{{ url_for('rate') }}" class="btn btn-brand">
+        <i class="fa-solid fa-star me-2"></i>Start Rating
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

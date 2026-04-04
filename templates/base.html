@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ImageRater{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="{{ url_for('index') }}">
+      <span class="brand-icon"><i class="fa-solid fa-star-half-stroke"></i></span>
+      ImageRater
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <i class="fa-solid fa-bars" style="color:#fff"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+        {% if session.user_id %}
+          {% if session.role == 'admin' %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_dashboard') }}"><i class="fa-solid fa-gauge-high me-1"></i>Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_upload') }}"><i class="fa-solid fa-cloud-arrow-up me-1"></i>Upload</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_history') }}"><i class="fa-solid fa-clock-rotate-left me-1"></i>History</a></li>
+          {% else %}
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('rate') }}"><i class="fa-solid fa-star me-1"></i>Rate</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('my_history') }}"><i class="fa-solid fa-list me-1"></i>My Ratings</a></li>
+          {% endif %}
+          <li class="nav-item">
+            <span class="nav-user-badge">
+              <i class="fa-solid fa-circle-user me-1"></i>{{ session.username }}
+              <span class="role-chip {{ session.role }}">{{ session.role }}</span>
+            </span>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-logout" href="{{ url_for('logout') }}">
+              <i class="fa-solid fa-right-from-bracket me-1"></i>Logout
+            </a>
+          </li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+          <li class="nav-item"><a class="btn btn-nav-cta" href="{{ url_for('signup') }}">Sign Up</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- FLASH MESSAGES -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container container mt-3">
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show flash-alert" role="alert">
+          <i class="fa-solid {% if cat == 'success' %}fa-circle-check{% elif cat == 'danger' %}fa-circle-xmark{% elif cat == 'warning' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %} me-2"></i>
+          {{ msg }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container text-center">
+    <p><i class="fa-solid fa-star-half-stroke me-2" style="color:#245953"></i>ImageRater &mdash; Role-Based Rating Platform</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

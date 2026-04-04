@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Upload Image — ImageRater{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:600px">
+  <h2 class="section-title mb-4">
+    <i class="fa-solid fa-cloud-arrow-up me-2"></i>Upload New Image
+  </h2>
+
+  <div class="upload-card">
+    <form method="POST" action="{{ url_for('admin_upload') }}" enctype="multipart/form-data" novalidate>
+
+      <div class="mb-3">
+        <label class="form-label">Image Name <span style="color:var(--danger)">*</span></label>
+        <input type="text" name="image_name" class="form-control" placeholder="e.g. Sunset at the Beach" required maxlength="150">
+        <div class="form-text" style="color:var(--text-muted);font-size:.8rem">A descriptive name shown to raters</div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">Image File <span style="color:var(--danger)">*</span></label>
+        <div class="dropzone" id="dropzone">
+          <input type="file" name="image_file" id="fileInput" accept=".png,.jpg,.jpeg,.gif,.webp" required>
+          <div class="dropzone-icon"><i class="fa-solid fa-image"></i></div>
+          <div class="dropzone-text">
+            <strong style="color:var(--brand)">Click to browse</strong> or drag &amp; drop<br>
+            <span style="font-size:.78rem">PNG, JPG, JPEG, GIF, WEBP — max 16MB</span>
+          </div>
+          <div id="filename-display"></div>
+        </div>
+      </div>
+
+      <!-- Image preview -->
+      <div id="preview-wrap" class="mb-3" style="display:none">
+        <label class="form-label">Preview</label>
+        <img id="preview-img" src="" alt="Preview"
+             style="width:100%;max-height:240px;object-fit:cover;border-radius:10px;border:1px solid var(--border)">
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-brand flex-grow-1">
+          <i class="fa-solid fa-cloud-arrow-up me-2"></i>Upload Image
+        </button>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn"
+           style="border:1.5px solid var(--border);border-radius:9px;padding:.65rem 1.2rem;color:var(--text)">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const fileInput  = document.getElementById('fileInput');
+const display    = document.getElementById('filename-display');
+const previewImg = document.getElementById('preview-img');
+const previewWrap= document.getElementById('preview-wrap');
+
+fileInput.addEventListener('change', function() {
+  if (this.files && this.files[0]) {
+    display.textContent = this.files[0].name;
+    const reader = new FileReader();
+    reader.onload = e => {
+      previewImg.src = e.target.result;
+      previewWrap.style.display = 'block';
+    };
+    reader.readAsDataURL(this.files[0]);
+  }
+});
+
+// Drag-over styling
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.background='rgba(36,89,83,.12)'; });
+dz.addEventListener('dragleave', () => { dz.style.background=''; });
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.style.background='';
+  fileInput.files = e.dataTransfer.files;
+  fileInput.dispatchEvent(new Event('change'));
+});
+</script>
+{% endblock %}

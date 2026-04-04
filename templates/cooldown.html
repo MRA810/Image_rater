@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Cooldown — ImageRater{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:600px;margin:2rem auto;">
+
+  <div class="cooldown-card">
+    <div class="cooldown-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+    <h2 class="cooldown-title">Rating Limit Reached</h2>
+    <p style="color:#666;margin-bottom:0">
+      You've rated <strong>10 images</strong> — great job! Take a break and come back in:
+    </p>
+
+    <div class="cooldown-timer">
+      <div class="timer-block">
+        <div class="timer-num" id="t-hours">{{ '%02d' | format(hours) }}</div>
+        <div class="timer-label">Hours</div>
+      </div>
+      <div class="timer-block">
+        <div class="timer-num" id="t-mins">{{ '%02d' | format(minutes) }}</div>
+        <div class="timer-label">Minutes</div>
+      </div>
+      <div class="timer-block">
+        <div class="timer-num" id="t-secs">{{ '%02d' | format(seconds) }}</div>
+        <div class="timer-label">Seconds</div>
+      </div>
+    </div>
+
+    <p style="color:var(--text-muted);font-size:.85rem">
+      <i class="fa-regular fa-clock me-1"></i>
+      Cooldown ends at {{ cooldown_until | replace('T',' ') | truncate(19, True, '') }} (server time)
+    </p>
+
+    <a href="{{ url_for('my_history') }}" class="btn btn-brand mt-2" style="background:#245953">
+      <i class="fa-solid fa-list me-2"></i>View My Rating History
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Client-side countdown from server-provided remaining seconds
+let total = {{ hours * 3600 + minutes * 60 + seconds }};
+
+function pad(n) { return String(n).padStart(2,'0'); }
+
+function tick() {
+  if (total <= 0) {
+    location.reload();
+    return;
+  }
+  total--;
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  document.getElementById('t-hours').textContent = pad(h);
+  document.getElementById('t-mins').textContent  = pad(m);
+  document.getElementById('t-secs').textContent  = pad(s);
+}
+
+setInterval(tick, 1000);
+</script>
+{% endblock %}

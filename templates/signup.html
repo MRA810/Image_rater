@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Sign Up — ImageRater{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="text-center mb-2">
+      <i class="fa-solid fa-user-plus" style="font-size:2.2rem;color:var(--brand)"></i>
+    </div>
+    <h1 class="auth-title text-center">Create account</h1>
+    <p class="auth-sub text-center">Join ImageRater and start rating</p>
+
+    <form method="POST" action="{{ url_for('signup') }}" novalidate>
+      <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" placeholder="johndoe" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email address</label>
+        <input type="email" name="email" class="form-control" placeholder="you@example.com" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <div class="position-relative">
+          <input type="password" name="password" id="pwd" class="form-control" placeholder="Min. 6 characters" required>
+          <button type="button" class="btn-eye" onclick="togglePwd()">
+            <i class="fa-solid fa-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Account Role</label>
+        <select name="role" class="form-select">
+          <option value="user">User (Rater)</option>
+          <option value="admin">Admin (Manager)</option>
+        </select>
+        <div class="form-text" style="color:var(--text-muted);font-size:.8rem">
+          Admins can upload images and view analytics. Users can rate images.
+        </div>
+      </div>
+      <button type="submit" class="btn btn-brand w-100">
+        <i class="fa-solid fa-user-plus me-2"></i>Create Account
+      </button>
+    </form>
+
+    <hr class="my-3">
+    <p class="text-center mb-0" style="font-size:.9rem;color:var(--text-muted)">
+      Already have an account?
+      <a href="{{ url_for('login') }}" style="color:var(--brand);font-weight:600">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.btn-eye {
+  position: absolute; right: .75rem; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none;
+  color: var(--text-muted); cursor: pointer;
+  padding: 0; font-size: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePwd() {
+  const inp = document.getElementById('pwd');
+  const ico = document.getElementById('eyeIcon');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    ico.className = 'fa-solid fa-eye-slash';
+  } else {
+    inp.type = 'password';
+    ico.className = 'fa-solid fa-eye';
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Rating History — ImageRater{% endblock %}
+
+{% block content %}
+<div class="container-lg">
+
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="section-title mb-0">
+        <i class="fa-solid fa-clock-rotate-left me-2"></i>Rating History
+      </h2>
+      <p style="color:var(--text-muted);margin-top:.3rem;font-size:.9rem">
+        All {{ total }} rating{{ 's' if total != 1 }} across all users
+      </p>
+    </div>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn"
+       style="border:1.5px solid var(--border);border-radius:9px;padding:.5rem 1.1rem;color:var(--text);font-size:.88rem">
+      <i class="fa-solid fa-arrow-left me-1"></i>Dashboard
+    </a>
+  </div>
+
+  <div class="table-wrapper mb-4">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>User</th>
+          <th>Image</th>
+          <th>Rating</th>
+          <th>Stars</th>
+          <th>Rated At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in history %}
+        <tr>
+          <td style="color:var(--text-muted)">{{ ((page-1)*20) + loop.index }}</td>
+          <td>
+            <span style="font-weight:600;color:var(--brand)">
+              <i class="fa-solid fa-circle-user me-1" style="opacity:.6"></i>{{ r.username }}
+            </span>
+          </td>
+          <td style="font-weight:500">{{ r.image_name }}</td>
+          <td>
+            <span class="avg-badge {% if r.rating < 4 %}low{% elif r.rating < 6.5 %}mid{% endif %}">
+              {{ r.rating }}/10
+            </span>
+          </td>
+          <td>
+            {% for i in range(r.rating) %}
+            <i class="fa-solid fa-star rating-star" style="font-size:.7rem"></i>
+            {% endfor %}
+            {% for i in range(10 - r.rating) %}
+            <i class="fa-solid fa-star" style="font-size:.7rem;color:var(--border)"></i>
+            {% endfor %}
+          </td>
+          <td style="color:var(--text-muted);font-size:.83rem">
+            {{ r.rated_at.strftime('%b %d, %Y %H:%M') }}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center py-4" style="color:var(--text-muted)">No ratings recorded yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGINATION -->
+  {% if total_pages > 1 %}
+  <nav>
+    <ul class="pagination justify-content-center">
+      <li class="page-item {% if page == 1 %}disabled{% endif %}">
+        <a class="page-link" href="{{ url_for('admin_history', page=page-1) }}">
+          <i class="fa-solid fa-chevron-left"></i>
+        </a>
+      </li>
+      {% for p in range(1, total_pages+1) %}
+        <li class="page-item {% if p == page %}active{% endif %}">
+          <a class="page-link" href="{{ url_for('admin_history', page=p) }}">{{ p }}</a>
+        </li>
+      {% endfor %}
+      <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+        <a class="page-link" href="{{ url_for('admin_history', page=page+1) }}">
+          <i class="fa-solid fa-chevron-right"></i>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  {% endif %}
+
+</div>
+{% endblock %}

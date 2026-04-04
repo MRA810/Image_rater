@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}Rate Image — ImageRater{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="rate-wrapper">
+
+    {% if image %}
+    <!-- Progress bar -->
+    {% set done = 10 - ratings_left %}
+    {% set pct = (done / total * 100) | int %}
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="section-title mb-0">
+        <i class="fa-solid fa-star me-2" style="color:#f5a623"></i>Rate This Image
+      </h2>
+      <span class="ratings-left-badge {% if ratings_left <= 2 %}low{% endif %}">
+        <i class="fa-solid fa-fire me-1"></i>
+        {{ ratings_left }} rating{{ 's' if ratings_left != 1 }} left
+      </span>
+    </div>
+
+    <div class="progress-track mb-4">
+      <div class="progress-fill" style="width:{{ pct }}%"></div>
+    </div>
+
+    <div class="image-card mb-4">
+      <img src="{{ url_for('static', filename='uploads/' + image.image_path) }}"
+           alt="{{ image.image_name }}" loading="lazy">
+      <div class="image-info">
+        <h3 class="image-name">{{ image.image_name }}</h3>
+        <p class="mb-0" style="color:var(--text-muted);font-size:.85rem">
+          <i class="fa-regular fa-calendar me-1"></i>
+          Added {{ image.created_at.strftime('%b %d, %Y') }}
+        </p>
+      </div>
+
+      <div class="rating-section">
+        <p class="fw-600 mb-2" style="font-weight:600;color:var(--text)">Your Rating</p>
+
+        <form method="POST" action="{{ url_for('rate') }}" id="ratingForm">
+          <input type="hidden" name="image_id" value="{{ image.id }}">
+
+          <!-- Hidden numeric input synced with stars -->
+          <input type="hidden" name="rating" id="ratingValue" value="">
+
+          <div class="star-rating mb-1" id="starContainer">
+            {% for i in range(10, 0, -1) %}
+            <input type="radio" id="s{{ i }}" name="star" value="{{ i }}">
+            <label for="s{{ i }}" title="{{ i }} stars"><i class="fa-solid fa-star"></i></label>
+            {% endfor %}
+          </div>
+          <p id="ratingDisplay" class="text-center mb-3" style="color:var(--text-muted);font-size:.88rem;height:1.2em"></p>
+
+          <button type="submit" class="btn btn-brand w-100" id="submitBtn" disabled>
+            <i class="fa-solid fa-paper-plane me-2"></i>Submit Rating
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Already-rated note -->
+    <div class="text-center">
+      <a href="{{ url_for('rate') }}" class="btn" style="color:var(--brand);border:1px solid var(--border);border-radius:8px;padding:.4rem 1.1rem;font-size:.88rem">
+        <i class="fa-solid fa-shuffle me-1"></i>Skip to another image
+      </a>
+    </div>
+
+    {% else %}
+    <!-- No unrated images -->
+    <div class="image-card">
+      <div class="empty-state">
+        <div class="empty-icon"><i class="fa-solid fa-images"></i></div>
+        <h3>All done!</h3>
+        {% if ratings_left == 10 %}
+          <p class="text-muted">No images available to rate yet. Check back later!</p>
+        {% else %}
+          <p class="text-muted">You've rated all available images. Great work!</p>
+        {% endif %}
+        <a href="{{ url_for('my_history') }}" class="btn btn-brand mt-2">
+          <i class="fa-solid fa-list me-2"></i>View My Ratings
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const labels = ['','Terrible','Bad','Poor','Below Average','Average','Decent','Good','Great','Excellent','Perfect'];
+
+document.querySelectorAll('#starContainer input').forEach(input => {
+  input.addEventListener('change', function() {
+    const val = parseInt(this.value);
+    document.getElementById('ratingValue').value = val;
+    document.getElementById('ratingDisplay').textContent = `${val}/10 — ${labels[val]}`;
+    document.getElementById('submitBtn').disabled = false;
+  });
+});
+
+document.getElementById('ratingForm')?.addEventListener('submit', function(e) {
+  const val = document.getElementById('ratingValue').value;
+  if (!val || val < 1 || val > 10) {
+    e.preventDefault();
+    alert('Please select a star rating first.');
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard — ImageRater{% endblock %}
+
+{% block content %}
+<div class="container-lg">
+
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="section-title mb-0">
+        <i class="fa-solid fa-gauge-high me-2"></i>Admin Dashboard
+      </h2>
+      <p style="color:var(--text-muted);margin-top:.3rem;font-size:.9rem">Platform overview and analytics</p>
+    </div>
+    <a href="{{ url_for('admin_upload') }}" class="btn btn-brand">
+      <i class="fa-solid fa-cloud-arrow-up me-2"></i>Upload Image
+    </a>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-4">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+        <div>
+          <div class="stat-num">{{ total_users }}</div>
+          <div class="stat-lbl">Total Users</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-images"></i></div>
+        <div>
+          <div class="stat-num">{{ total_images }}</div>
+          <div class="stat-lbl">Total Images</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-star"></i></div>
+        <div>
+          <div class="stat-num">{{ total_ratings }}</div>
+          <div class="stat-lbl">Total Ratings</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP 5 & LEAST 5 -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-6">
+      <h4 class="section-title" style="font-size:1.15rem">
+        <i class="fa-solid fa-trophy me-2" style="color:#ffd700"></i>Top 5 Images
+      </h4>
+      <div class="table-wrapper">
+        <table class="table table-hover">
+          <thead><tr><th>#</th><th>Image</th><th>Avg</th><th>Ratings</th></tr></thead>
+          <tbody>
+            {% for img in top5 %}
+            <tr>
+              <td>
+                <span class="rank-badge {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% else %}rank-other{% endif %}">
+                  {{ loop.index }}
+                </span>
+              </td>
+              <td>
+                <img src="{{ url_for('static', filename='uploads/' + img.image_path) }}" class="thumb me-2" alt="">
+                <span style="font-size:.88rem;font-weight:500">{{ img.image_name | truncate(22) }}</span>
+              </td>
+              <td><span class="avg-badge">{{ img.avg_rating }}</span></td>
+              <td style="color:var(--text-muted)">{{ img.total_ratings }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-3">No rated images yet</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <h4 class="section-title" style="font-size:1.15rem">
+        <i class="fa-solid fa-arrow-trend-down me-2" style="color:var(--danger)"></i>Least Rated Images
+      </h4>
+      <div class="table-wrapper">
+        <table class="table table-hover">
+          <thead><tr><th>#</th><th>Image</th><th>Avg</th><th>Ratings</th></tr></thead>
+          <tbody>
+            {% for img in least5 %}
+            <tr>
+              <td style="color:var(--text-muted)">{{ loop.index }}</td>
+              <td>
+                <img src="{{ url_for('static', filename='uploads/' + img.image_path) }}" class="thumb me-2" alt="">
+                <span style="font-size:.88rem;font-weight:500">{{ img.image_name | truncate(22) }}</span>
+              </td>
+              <td><span class="avg-badge low">{{ img.avg_rating }}</span></td>
+              <td style="color:var(--text-muted)">{{ img.total_ratings }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-3">No rated images yet</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL IMAGE ANALYTICS -->
+  <h4 class="section-title mb-3">
+    <i class="fa-solid fa-chart-bar me-2"></i>All Images — Analytics
+  </h4>
+  <div class="table-wrapper mb-4">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Preview</th>
+          <th>Image Name</th>
+          <th>Avg Rating</th>
+          <th>Total Ratings</th>
+          <th>Uploaded</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for img in analytics %}
+        <tr>
+          <td style="color:var(--text-muted)">#{{ img.id }}</td>
+          <td>
+            <img src="{{ url_for('static', filename='uploads/' + img.image_path) }}" class="thumb" alt="{{ img.image_name }}">
+          </td>
+          <td style="font-weight:500">{{ img.image_name }}</td>
+          <td>
+            {% if img.avg_rating %}
+              <span class="avg-badge {% if img.avg_rating < 4 %}low{% elif img.avg_rating < 6.5 %}mid{% endif %}">
+                {{ img.avg_rating }}
+              </span>
+            {% else %}
+              <span style="color:var(--text-muted);font-size:.85rem">—</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="fw-600">{{ img.total_ratings }}</span>
+            <span style="color:var(--text-muted);font-size:.8rem"> rating{{ 's' if img.total_ratings != 1 }}</span>
+          </td>
+          <td style="color:var(--text-muted);font-size:.83rem">{{ img.created_at.strftime('%b %d, %Y') }}</td>
+          <td>
+            <form method="POST" action="{{ url_for('delete_image', image_id=img.id) }}"
+                  onsubmit="return confirm('Delete this image and all its ratings?')">
+              <button type="submit" class="btn btn-danger-custom">
+                <i class="fa-solid fa-trash-can me-1"></i>Delete
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center py-4" style="color:var(--text-muted)">
+            No images uploaded yet.
+            <a href="{{ url_for('admin_upload') }}" style="color:var(--brand)">Upload one now →</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}
