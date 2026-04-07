@@ -1,3 +1,2 @@
-# Ignore everything inside uploads except the placeholder
 static/uploads/*
 !static/uploads/.gitkeep
