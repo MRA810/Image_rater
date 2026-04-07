@@ -13,8 +13,8 @@ app.secret_key = 'image_rater_secret_key_2024'
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-MAX_RATINGS = 10
-COOLDOWN_HOURS = 10
+MAX_RATINGS = 1
+COOLDOWN_HOURS = 0.001
 INVITE_CODE = "UQID_SERIAL_ATLAS_4462381"  # Invite-only registration
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
