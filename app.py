@@ -13,9 +13,8 @@ app.secret_key = 'image_rater_secret_key_2024'
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-MAX_RATINGS = 1
-COOLDOWN_HOURS = 0.001
-INVITE_CODE = "UQID_SERIAL_ATLAS_4462381"  # Invite-only registration
+MAX_RATINGS = 10
+COOLDOWN_SECONDS = 3
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
@@ -63,17 +62,9 @@ def admin_required(f):
     def decorated(*args, **kwargs):
         if 'user_id' not in session:
             return redirect(url_for('login'))
-
-        user = query(
-            "SELECT role FROM users WHERE id=%s",
-            (session['user_id'],),
-            fetchone=True
-        )
-
-        if not user or user['role'] != 'admin':
+        if session.get('role') != 'admin':
             flash('Admin access required.', 'danger')
             return redirect(url_for('rate'))
-
         return f(*args, **kwargs)
     return decorated
 
@@ -94,53 +85,36 @@ def index():
 def signup():
     if 'user_id' in session:
         return redirect(url_for('index'))
-
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
         role = request.form.get('role', 'user')
-        admin_code = request.form.get('admin_code', '').strip()
 
-        # Validate required fields
         if not username or not email or not password:
             flash('All fields are required.', 'danger')
             return render_template('signup.html')
 
-        # If admin role, verify invite code
-        if role == 'admin':
-            if admin_code != INVITE_CODE:
-                flash('Invalid admin invite code.', 'danger')
-                return render_template('signup.html')
+        if role not in ('admin', 'user'):
+            role = 'user'
 
-        # Check if user/email exists
-        existing = query(
-            "SELECT id FROM users WHERE email=%s OR username=%s",
-            (email, username), fetchone=True
-        )
+        existing = query("SELECT id FROM users WHERE email=%s OR username=%s", (email, username), fetchone=True)
         if existing:
             flash('Username or email already exists.', 'danger')
             return render_template('signup.html')
 
-        # Hash password
         pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-
-        # Insert user with proper role
         user_id = query(
             "INSERT INTO users (username, email, password_hash, role) VALUES (%s,%s,%s,%s)",
-            (username, email, pw_hash, role),
-            commit=True
+            (username, email, pw_hash, role), commit=True
         )
-
         # Init rating session
         query(
             "INSERT INTO user_rating_session (user_id, ratings_count, last_rating_time) VALUES (%s, 0, NULL)",
             (user_id,), commit=True
         )
-
         flash('Account created! Please log in.', 'success')
         return redirect(url_for('login'))
-
     return render_template('signup.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -173,6 +147,9 @@ def logout():
 @app.route('/rate', methods=['GET', 'POST'])
 @login_required
 def rate():
+    if session.get('role') == 'admin':
+        return redirect(url_for('admin_dashboard'))
+
     user_id = session['user_id']
     now = datetime.now()
 
@@ -217,10 +194,10 @@ def rate():
 
         new_count = sess['ratings_count'] + 1
         if new_count >= MAX_RATINGS:
-            cooldown_until = now + timedelta(hours=COOLDOWN_HOURS)
-            query("UPDATE user_rating_session SET ratings_count=%s, last_rating_time=%s, cooldown_until=%s WHERE user_id=%s",
-                  (new_count, now, cooldown_until, user_id), commit=True)
-            flash(f'You have rated {MAX_RATINGS} images! Cooldown of {COOLDOWN_HOURS} hours started.', 'info')
+            cooldown_until = now + timedelta(seconds=COOLDOWN_SECONDS)
+            query("UPDATE user_rating_session SET ratings_count=0, last_rating_time=%s, cooldown_until=%s WHERE user_id=%s",
+                  (now, cooldown_until, user_id), commit=True)
+            flash(f'You have rated {MAX_RATINGS} images! Please wait {COOLDOWN_SECONDS} seconds.', 'info')
             return redirect(url_for('rate'))
         else:
             query("UPDATE user_rating_session SET ratings_count=%s, last_rating_time=%s WHERE user_id=%s",

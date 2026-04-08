@@ -475,4 +475,7 @@ h1,h2,h3,h4 { font-family: 'DM Serif Display', serif; }
   .auth-card { padding: 1.8rem 1.2rem; }
   .cooldown-timer { gap: .6rem; }
   .timer-block { min-width: 64px; padding: .75rem 1rem; }
+  .star-rating label {
+  font-size: 1.8rem;
+}
 }
