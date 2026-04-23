@@ -66,6 +66,8 @@ cd image_rater
 pip install -r requirements.txt
 ```
 
+##LIVE: npx localtunnel --port 5000 --subdomain imagerater
+
 ### Step 4 — Configure Database (if needed)
 
 In `app.py`, find the `get_db()` function and adjust if your MySQL credentials differ:
